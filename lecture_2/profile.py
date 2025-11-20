@@ -9,16 +9,14 @@ def generate_profile(age):
     else:
         return "Age must be between 0 and 100"
 
-# print(generate_profile(10))
-# print(generate_profile(15))
-# print(generate_profile(21))
-# print(generate_profile(-5))
+
 
 user_name = input("Enter your full name: ")
 birth_year_str = input("Enter your birth year: ")
 birth_year = int(birth_year_str)
-
 current_age = 2025 - birth_year
+
+
 hobbies = []
 while True:
     hobby = input("Enter a favorite hobby or type 'stop' to finish: ")
@@ -32,7 +30,7 @@ user_profile = {
     "name": user_name,
     "age": current_age,
     "stage": life_stage,
-    "hobby": hobbies,
+    "hobbies": hobbies,
 }
 
 print("\n---")
@@ -40,9 +38,9 @@ print("Profile Summary:")
 print(f"Name: {user_profile.get('name')}")
 print(f"Age: {user_profile.get('age')}")
 print(f"Life Stage: {user_profile.get('stage')}")
-if user_profile.get('hobby'):
-    print(f"Favorite Hobbies: ({len(user_profile.get('hobby'))})")
-    for hobby in user_profile.get('hobby'):
+if user_profile.get('hobbies'):
+    print(f"Favorite Hobbies ({len(user_profile.get('hobbies'))}):")
+    for hobby in user_profile.get('hobbies'):
         print(f"- {hobby}")
 else:
     print("You didn't mention any hobbies.")
