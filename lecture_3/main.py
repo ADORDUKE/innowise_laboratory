@@ -1,14 +1,35 @@
-"""The Student Grade Analyzer"""
-from random import choice
-from typing import TypedDict, Optional
+"""The Student Grade Analyzer
+A simple console program for managing student records, adding grades,
+calculating averages, and generating reports.
+"""
+
+
+from typing import TypedDict
 
 
 class Student(TypedDict):
+    """ Representation of a student record.
+
+    Attributes:
+        name (str): The student's name.
+        grades (list[float]): A list of numeric grades (0–100).
+
+    """
     name: str
     grades: list[float]
 
 
 def add_a_grade_for_a_student(students:list[Student]) -> None:
+    """Add grades to an existing student.
+
+       Prompts the user for a student's name, searches for that student,
+       and then repeatedly asks for grades until the user types 'done'.
+       Only numeric grades between 0 and 100 are accepted.
+
+       Args:
+           students (list[Student]): List of student records.
+    """
+
     name_student = input("Enter student name: ").strip()
     stud = find_a_student(students, name_student)
 
@@ -18,30 +39,50 @@ def add_a_grade_for_a_student(students:list[Student]) -> None:
             if grade == "done":
                 break
 
-            if grade.isdigit():
-                if 0 <= int(grade) <= 100:
-                    stud.get("grades").append(int(grade))
-                else:
-                    print("Invalid grade. Please enter a value between 0 and 100.")
-                    continue
-            else:
+            try:
+                value = float(grade)
+            except ValueError:
                 print("Invalid input. Please enter a number.")
                 continue
+
+            if not (0 <= value <= 100):
+                print("Grade must be between 0 and 100.")
+                continue
+
+            stud["grades"].append(value)
     else:
         print("Student not found")
 
 
+def calc_avg(student: Student) -> float | None:
+    """Calculate the average grade of a student.
 
+        Args:
+            student (Student): A student record.
 
+        Returns:
+            float | None: The average grade, or None if no grades exist.
+    """
 
-def calc_avg(student: dict) -> float | None:
     grades = student["grades"]
     return sum(grades) / len(grades) if grades else None
 
 
 
 
-def find_a_student(students:list[Student], name_stud) -> Student | None:
+def find_a_student(students:list[Student], name_stud: str) -> Student | None:
+    """Find and return a student by name.
+
+        The search is case-insensitive and ignores extra whitespace.
+
+        Args:
+            students (list[Student]): List of student records.
+            name_stud (str): Name of the student to search for.
+
+        Returns:
+            Student | None: The found student, or None if not found.
+    """
+
     for stud in students:
         if stud.get("name").strip().lower() == name_stud.strip().lower():
             return stud
@@ -49,6 +90,15 @@ def find_a_student(students:list[Student], name_stud) -> Student | None:
 
 
 def add_a_new_student(students: list[Student]) -> None:
+    """Add a new student to the list.
+
+    Prompts the user for a name. If a student with this name already
+    exists (case-insensitive), the function prints a warning.
+
+    Args:
+        students (list[Student]): List of student records.
+    """
+
     name_student = input("Enter student name: ").strip()
 
     if find_a_student(students, name_student):
@@ -62,8 +112,18 @@ def add_a_new_student(students: list[Student]) -> None:
         )
 
 
-def show_report(students:list[Student]) -> str | None:
+def show_report(students:list[Student]) -> None:
+    """Print a full report of student averages and overall statistics.
+
+    For each student, prints either the average grade or "N/A" if no grades exist.
+    Then prints the maximum, minimum, and overall average of all available averages.
+
+    Args:
+        students (list[Student]): List of all student records.
+    """
+
     averages: list[float] = []
+
 
     if len(students) == 0:
         print("Students not found")
@@ -91,17 +151,29 @@ def show_report(students:list[Student]) -> str | None:
     return None
 
 
-def find_top_performer(students) ->None:
+def find_top_performer(students: list[Student]) -> None:
+    """Determine and print the student with the highest average grade.
+
+    Students without any grades are ignored. If no students have grades,
+    the function prints a warning.
+
+    Args:
+        students (list[Student]): List of student records.
+    """
+
+    students_with_grades = [s for s in students if s.get("grades")]
+
+    if not students_with_grades:
+        print("No grades found to determine top performer.")
+        return
+
     highest_average = max(students, key=lambda x: calc_avg(x))
     print(f"The student with the highest average is {highest_average.get("name")} with a grade of {calc_avg(highest_average)}")
 
 
-
-
-
-
 def menu() -> None:
-    """Show the menu"""
+    """Display the main menu options."""
+
     print("\n---Student Grade Analyzer---")
     print("1. Add a new Student")
     print("2. Add grades for a student")
@@ -110,7 +182,11 @@ def menu() -> None:
     print("5. Exit the program")
 
 
-def main():
+def main() -> None:
+    """Entry point of the program.
+
+    Handles the menu loop, user choices, and dispatching to action functions.
+    """
     students = []
 
     actions = {
@@ -139,13 +215,6 @@ def main():
             action(students)
         else:
             print("Invalid choice.")
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
     main()
