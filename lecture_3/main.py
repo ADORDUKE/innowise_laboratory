@@ -33,25 +33,30 @@ def add_a_grade_for_a_student(students:list[Student]) -> None:
     name_student = input("Enter student name: ").strip()
     stud = find_a_student(students, name_student)
 
-    if stud:
-        while True:
-            grade = input("Enter a grade (or 'done' to finish): ").strip()
-            if grade == "done":
-                break
-
-            try:
-                value = float(grade)
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-                continue
-
-            if not (0 <= value <= 100):
-                print("Grade must be between 0 and 100.")
-                continue
-
-            stud["grades"].append(value)
-    else:
+    if not stud:
         print("Student not found")
+        return
+
+    # Add grades interactively
+    while True:
+        grade = input("Enter a grade (or 'done' to finish): ").strip()
+
+        if grade.lower() == "done": # Allow DONE, Done, etc
+            break
+
+        # Try parsing input as a number
+        try:
+            value = float(grade)
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+
+        if not (0 <= value <= 100):
+            print("Grade must be between 0 and 100.")
+            continue
+
+        stud["grades"].append(value)
+
 
 
 def calc_avg(student: Student) -> float | None:
@@ -83,8 +88,9 @@ def find_a_student(students:list[Student], name_stud: str) -> Student | None:
             Student | None: The found student, or None if not found.
     """
 
+    name_stud = name_stud.strip().lower()
     for stud in students:
-        if stud.get("name").strip().lower() == name_stud.strip().lower():
+        if stud["name"].strip().lower() == name_stud:
             return stud
     return None
 
@@ -103,13 +109,9 @@ def add_a_new_student(students: list[Student]) -> None:
 
     if find_a_student(students, name_student):
         print("Student already exists")
-    else:
-        students.append(
-            Student(
-                name=name_student,
-                grades=list()
-            )
-        )
+        return
+
+    students.append(Student(name=name_student, grades=[]))
 
 
 def show_report(students:list[Student]) -> None:
@@ -122,12 +124,12 @@ def show_report(students:list[Student]) -> None:
         students (list[Student]): List of all student records.
     """
 
+    if not students:
+        print("Student not found")
+        return None
+
     averages: list[float] = []
 
-
-    if len(students) == 0:
-        print("Students not found")
-        return None
 
     print("--- Student Report ---")
     for stud in students:
@@ -139,14 +141,18 @@ def show_report(students:list[Student]) -> None:
         if avg_grades is None:
             print(f"{stud.get('name')}'s average grade is N/A.")
         else:
-            print(f"{stud.get('name')}'s average grade is {avg_grades}.")
+            print(f"{stud.get('name')}'s average grade is {avg_grades:.1f}.")
             averages.append(avg_grades)
 
+    #if no grades at all - stop here
+    if not averages:
+        print("No averages were found.")
+        return None
 
     print("-" * 26)
-    print(f"Max Average: {max(averages)}")
-    print(f"Min Average: {min(averages)}")
-    print(f"Overall Average: {sum(averages) / len(averages)}")
+    print(f"Max Average: {max(averages):.1f}")
+    print(f"Min Average: {min(averages):.1f}")
+    print(f"Overall Average: {sum(averages) / len(averages):.1f}")
 
     return None
 
@@ -161,14 +167,16 @@ def find_top_performer(students: list[Student]) -> None:
         students (list[Student]): List of student records.
     """
 
-    students_with_grades = [s for s in students if s.get("grades")]
+    #Exclude students without grades
+    students_with_grades = [s for s in students if s["grades"]]
 
     if not students_with_grades:
         print("No grades found to determine top performer.")
         return
 
-    highest_average = max(students, key=lambda x: calc_avg(x))
-    print(f"The student with the highest average is {highest_average.get("name")} with a grade of {calc_avg(highest_average)}")
+    #max(..., key=...) is safe because list is non-empty
+    highest_average = max(students_with_grades, key=lambda x: calc_avg(x))
+    print(f"The student with the highest average is {highest_average.get("name")} with a grade of {calc_avg(highest_average):.1f}")
 
 
 def menu() -> None:
@@ -187,8 +195,9 @@ def main() -> None:
 
     Handles the menu loop, user choices, and dispatching to action functions.
     """
-    students = []
+    students: list[Student] = []
 
+    # Mapping of user menu choice to handler functions
     actions = {
         1: add_a_new_student,
         2: add_a_grade_for_a_student,
