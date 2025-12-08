@@ -1,0 +1,19 @@
+[project]
+name = "lecture-5"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Artyom Dordyuk",email = "a.dorduke@gmail.com"}
+]
+package-mode = false
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi (==0.104.1)",
+    "uvicorn (==0.24.0)",
+    "sqlalchemy (==2.0.23)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
