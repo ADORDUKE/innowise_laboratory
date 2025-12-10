@@ -12,7 +12,7 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
 )
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False,autocommit=False)
+SessionLocal = sessionmaker(bind=engine)
 
 def get_db():
     db = SessionLocal()
